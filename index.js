@@ -6,6 +6,7 @@ const cors = require("cors");
 const userRoutes = require('./routes/user')
 const productRoutes = require('./routes/productRoute');
 const cartRoutes = require('./routes/cartRoute');
+const orderRoutes = require('./routes/orderRoute');
 
 const port = process.env.PORT || 4000;
 
@@ -36,3 +37,4 @@ app.listen(port, () => {
 app.use("/users", userRoutes);
 app.use("/products", productRoutes);
 app.use("/cart", cartRoutes);
+app.use("/orders", orderRoutes);
