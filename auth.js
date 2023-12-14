@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
-
-const secret = "Capstone2API";
+// const secret = "Capstone2API";
+require('dotenv').config();
 
 module.exports.createAccessToken = (user) => {
   const data = {
@@ -9,31 +9,31 @@ module.exports.createAccessToken = (user) => {
     isAdmin: user.isAdmin,
   };
 
-  return jwt.sign(data, secret, {});
+  return jwt.sign(data, process.env.SECRET || secret, {});
 };
 
 module.exports.verify = (req, res, next) => {
-  console.log(req.headers.authorization);
+  // console.log(req.headers.authorization);
 
   let token = req.headers.authorization;
 
   if (typeof token === "undefined") {
     return res.send({ auth: "Failed. No Token" });
   } else {
-    console.log(token);
+    // console.log(token);
     // Removes the "Bearer" string
     token = token.slice(7, token.length);
-    console.log(token);
+    // console.log(token);
 
-    jwt.verify(token, secret, function (err, decodedToken) {
+    jwt.verify(token, process.env.SECRET || secret, function (err, decodedToken) {
       if (err) {
         return res.send({
           auth: "Failed",
           message: err.message,
         });
       } else {
-        console.log("result from verify method:");
-        console.log(decodedToken);
+        // console.log("result from verify method:");
+        // console.log(decodedToken);
 
         req.user = decodedToken;
 
@@ -53,3 +53,13 @@ module.exports.verifyAdmin = (req, res, next) => {
     });
   }
 };
+
+// Middleware to check if the user is authenticated
+module.exports.isLoggedIn = (req, res, next) =>{
+  if(req.user){
+      next();
+  }
+  else{
+      res.sendStatus(401);
+  }
+}

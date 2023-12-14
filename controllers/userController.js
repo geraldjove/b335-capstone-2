@@ -161,7 +161,7 @@ module.exports.updatePassword = (req, res) => {
         return res.status(400).send({message: 'Password must be at least 8 characters long'})
       }
       
-      User.findByIdAndUpdate(req.user.id, {password: req.body.password, new: true})
+      User.findByIdAndUpdate(req.user.id, {password: bcrypt.hashSync(req.body.password, 10), new: true})
       .then((updated)=>{
         if(updated.password === req.body.password){
           return res.status(403).send({message: 'User password did not updated because it is still the same.'})

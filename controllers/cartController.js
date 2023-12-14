@@ -1,115 +1,171 @@
-const Cart = require("../models/Cart");
-const Product = require("../models/Product");
+const Cart = require('../models/Cart');
+const Product = require('../models/Product');
 
 module.exports.getUserCart = (req, res) => {
-  Cart.findOne({ userId: req.user.id })
-    .then((cart) => {
-      if (cart) {
-        return res.status(200).send({ cart: cart });
-      } else {
-        return res
-          .status(200)
-          .send({ message: "There's no added items in the cart" });
-      }
-    })
-    .catch((err) => {
-      console.log(err);
-      return res
-        .status(500)
-        .send({ success: false, message: "Internal Server Error" });
-    });
+    Cart.findOne({ userId: req.user.id })
+        .then((cart) => {
+            if (!cart || cart.cartItems.length === 0) {
+                res.status(404).send({ message: 'Empty Cart' });
+            } else {
+                res.status(200).send({ message: cart });
+            }
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).send({success: false, message: "Internal Server Error"});
+        });
 };
 
-module.exports.addToCart = async (req, res) => {
-  try {
+module.exports.addToCart = (req, res) => {
     const { quantity, productId } = req.body;
-    const userId = req.user.id;
+    Cart.findOne({ userId: req.user.id })
+        .then((cartResult) => {
+            if (cartResult) {
+                const existingProduct = cartResult.cartItems.find(item => item.productId === productId);
 
-    const hexRegex = /^[0-9a-fA-F]{24}$/;
+                if (existingProduct) {
+                    return res.status(400).send({ message: 'Product is already in the cart. Please proceed to PATCH /carts/update-cart-quantity' });
+                } else {
+                    Product.findById(productId)
+                        .then((product) => {
+                            if (!product) {
+                                return res.status(404).send({ message: 'Product does not exist.' });
+                            }
 
-    // Check if it is a 24-character hex string
+                            cartResult.cartItems.push({
+                                productId: productId,
+                                quantity: quantity,
+                                subtotal: quantity * product.price,
+                                price: product.price,
+                            });
 
-    if (productId == "") {
-      return res.status(400).send({ message: "Please provide product Id" });
-    } else if (!hexRegex.test(productId) || productId instanceof Uint8Array) {
-      return res.status(404).send({ message: "No product found" });
-    } else {
-      const product = await Product.findById(productId);
+                            cartResult.totalPrice = cartResult.cartItems.reduce((total, item) => total + item.subtotal, 0);
 
-      // Check if the product with the provided productId does not exist
+                            cartResult.save()
+                                .then(updatedCart => {
+                                    res.status(200).send({ message: updatedCart });
+                                })
+                                .catch(error => res.status(400).send({ message: 'Failed to update cart' }));
+                        })
+                        .catch(error => res.status(500).send({ message: 'Internal server error.' + error }));
+                }
+            } else {
+                Product.findById(productId)
+                    .then((product) => {
+                        if (!product) {
+                            return res.status(404).send({ message: 'Product does not exist.' });
+                        }
 
-      const subtotal = product.price * quantity;
+                        const newCart = new Cart({
+                            userId: req.user.id,
+                            cartItems: [
+                                {
+                                    productId: productId,
+                                    quantity: quantity,
+                                    subtotal: quantity * product.price,
+                                    price: product.price,
+                                },
+                            ],
+                            totalPrice: quantity * product.price,
+                        });
 
-      let userCart = await Cart.findOne({ userId: userId });
-
-      if (!userCart) {
-        userCart = new Cart({
-          userId,
-          cartItems: [],
-        });
-      }
-
-      userCart.cartItems.push({
-        productId: productId,
-        quantity: quantity,
-        subtotal: subtotal,
-      });
-
-      userCart.totalPrice += subtotal;
-
-      await userCart.save().then((userCart) => {
-        const addedCart = userCart.cartItems[userCart.cartItems.length - 1];
-        return res.status(200).send({
-          message: "Item added to cart successfully",
-          userId: userId,
-          added_cart: addedCart,
-        });
-      });
-    }
-  } catch (error) {
-    console.log(error);
-    return res.status(500).status({ message: "Internal Server Code" });
-  }
+                        newCart.save()
+                            .then(savedCart => res.status(200).send({ message: savedCart }))
+                            .catch(error => res.status(403).send({ message: 'Cart not saved' }));
+                    })
+                    .catch(error => res.status(500).send({ message: 'Internal server error.' + error }));
+            }
+        })
+        .catch(error => res.status(500).send({ message: 'Internal server error.' + error }));
 };
 
-module.exports.updateCartQuantity = async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { productId, quantity } = req.body;
-    console.log(quantity);
+module.exports.updateCartQuantity = (req, res) => {
+    Cart.findOneAndUpdate(
+        { userId: req.user.id, 'cartItems.productId': req.body.productId },
+        { $set: { 'cartItems.$.quantity': req.body.quantity } },
+        { new: true }
+    )
+    .then((result) => {
+        if (!result) {
+            return res.status(404).send({ message: "The product you're trying to change quantity with is not within the cart." });
+        } else {
+            const fetchProductDetails = result.cartItems.map(item =>
+                Product.findById(item.productId)
+                    .then(product => {
+                        if (!product) {
+                            throw new Error("Product not found.");
+                        }
+                        item.price = product.price;
+                        item.subtotal = item.quantity * item.price;
+                        return item;
+                    })
+            );
 
-    const userCart = await Cart.findOne({ userId: userId });
-    const product = await Product.findById(productId);
-
-    // Find the index of the product in the cart
-    const productIndex = userCart.cartItems.findIndex((item) => {
-      return item.productId === productId;
+            return Promise.all(fetchProductDetails)
+                .then(updatedCartItems => {
+                    result.totalPrice = updatedCartItems.reduce((total, item) => total + item.subtotal, 0);
+                    return result.save();
+                })
+                .then(updatedCart => res.status(200).send({ message: 'Successfully changed quantity to ' + req.body.quantity, updatedCart }))
+                .catch(error => res.status(400).send({ message: 'Failed to update cart: ' + error.message }));
+        }
+    })
+    .catch((error) => {
+        console.error(error);
+        return res.status(500).send({ message: 'Internal server error.' + error });
     });
+};
 
-    console.log(productIndex);
-    if (productIndex !== -1) {
-      // Update the quantity and subtotal
-      userCart.cartItems[productIndex].quantity = quantity;
-      userCart.cartItems[productIndex].subtotal = product.price * quantity;
-      // Recalculate the total price
-      userCart.totalPrice = userCart.cartItems.reduce(
-        (total, item) => total + item.subtotal,
-        0
-      );
+module.exports.removeProduct = (req, res) => {
+    Cart.findOne({ userId: req.user.id })
+        .then((result) => {
+            if (!result) {
+                return res.status(404).send({ message: 'No cart found.' });
+            }
 
-      // Save the updated cart
-      await userCart.save().then((updated_cart) => {
-        return res.status(200).send(updated_cart);
-      });
+            // Check if the product exists in the cart
+            const productIndex = result.cartItems.findIndex(item => item.productId === req.params.productId);
 
-      return res
-        .status(200)
-        .send({ message: "Cart updated successfully", cart: userCart });
-    } else {
-      return res.status(404).send({ message: "Product not found in the cart" });
-    }
-  } catch (error) {
-    console.log(error);
-    return res.status(500).send({ message: "Internal Server Error" });
-  }
+            if (productIndex !== -1) {
+                // Product found, remove it from the cart
+                result.cartItems.splice(productIndex, 1);
+
+                // Update the totalPrice
+                result.totalPrice = result.cartItems.reduce((total, item) => total + item.subtotal, 0);
+
+                // Save the updated cart
+                result.save()
+                    .then((updatedCart) => res.status(200).send({ message: 'Successfully removed product with productId ' + req.params.productId, updatedCart }))
+                    .catch(error => res.status(500).send({ message: 'Failed to update cart: ' + error }));
+            } else {
+                // Product not found in the cart
+                return res.status(404).send({ message: 'Product with productId ' + req.params.productId + ' is not in the cart.' });
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+            return res.status(500).send({ message: 'Internal server error.' + error });
+        });
+};
+
+
+module.exports.clearCart = (req, res) => {
+    Cart.findOne({ userId: req.user.id })
+        .then((result) => {
+            if (!result) {
+                return res.status(404).send({ message: 'No cart found.' });
+            } else if (result.cartItems.length === 0) {
+                return res.status(200).send({ message: 'Cart is already empty.' });
+            } else {
+                result.cartItems = [];
+                result.totalPrice = 0;
+                result.save()
+                    .then(updatedCart => res.status(200).send({ message: 'Successfully cleared all products from the cart.' }))
+                    .catch(error => res.status(500).send({ message: 'Failed to clear cart: ' + error }));
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+            return res.status(500).send({ message: 'Internal server error.' + error });
+        });
 };
