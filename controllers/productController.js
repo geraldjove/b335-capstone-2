@@ -2,7 +2,7 @@ const Product = require('../models/Product');
 
 module.exports.createProduct = (req, res) =>{
     const {name, description, price, isActive} = req.body;
-    return Product.findOne({name: req.body.name})
+    return Product.findOne({name: {$regex: new RegExp(req.body.name, 'i')}})
     .then((result)=>{
         if(result){
             res.status(403).send({message: 'Duplicated product name found.'})
