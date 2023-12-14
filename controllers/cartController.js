@@ -1,21 +1,20 @@
 const Cart = require('../models/Cart');
 const Product = require('../models/Product');
 
-module.exports.getUserCart = (req, res) =>{
-    return Cart.findOne({userId: req.user.id})
-    .then((result)=>{
-        console.log(result);
-        if(!result || result.length === 0){
-            res.status(404).send({message: 'Empty Cart'})
-        } else {
-            res.status(200).send({message: result})
-        }
-    })
-    .catch((error) => {
-        console.error(error);
-        return res.status(500).send({ message: 'Internal server error.' });
-      });
-}
+module.exports.getUserCart = (req, res) => {
+    Cart.findOne({ userId: req.user.id })
+        .then((result) => {
+            if (!result || result.cartItems.length === 0) {
+                res.status(404).send({ message: 'Empty Cart' });
+            } else {
+                res.status(200).send({ message: result });
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+            return res.status(500).send({ message: 'Internal server error.' });
+        });
+};
 
 module.exports.addToCart = (req, res) => {
     Cart.findOne({ userId: req.user.id })
@@ -43,7 +42,6 @@ module.exports.addToCart = (req, res) => {
 
                             cartResult.save()
                                 .then(updatedCart => {
-                                    // Updated totalPrice, now send the response
                                     res.status(200).send({ message: updatedCart });
                                 })
                                 .catch(error => res.status(400).send({ message: 'Failed to update cart' }));
@@ -102,10 +100,8 @@ module.exports.updateCartQuantity = (req, res) => {
                     })
             );
 
-            // Resolve all promises
             return Promise.all(fetchProductDetails)
                 .then(updatedCartItems => {
-
                     result.totalPrice = updatedCartItems.reduce((total, item) => total + item.subtotal, 0);
                     return result.save();
                 })
@@ -119,6 +115,56 @@ module.exports.updateCartQuantity = (req, res) => {
     });
 };
 
+module.exports.removeProduct = (req, res) => {
+    Cart.findOne({ userId: req.user.id })
+        .then((result) => {
+            if (!result) {
+                return res.status(404).send({ message: 'No cart found.' });
+            }
+
+            // Check if the product exists in the cart
+            const productIndex = result.cartItems.findIndex(item => item.productId === req.params.productId);
+
+            if (productIndex !== -1) {
+                // Product found, remove it from the cart
+                result.cartItems.splice(productIndex, 1);
+
+                // Update the totalPrice
+                result.totalPrice = result.cartItems.reduce((total, item) => total + item.subtotal, 0);
+
+                // Save the updated cart
+                result.save()
+                    .then((updatedCart) => res.status(200).send({ message: 'Successfully removed product with productId ' + req.params.productId, updatedCart }))
+                    .catch(error => res.status(500).send({ message: 'Failed to update cart: ' + error }));
+            } else {
+                // Product not found in the cart
+                return res.status(404).send({ message: 'Product with productId ' + req.params.productId + ' is not in the cart.' });
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+            return res.status(500).send({ message: 'Internal server error.' + error });
+        });
+};
 
 
-
+module.exports.clearCart = (req, res) => {
+    Cart.findOne({ userId: req.user.id })
+        .then((result) => {
+            if (!result) {
+                return res.status(404).send({ message: 'No cart found.' });
+            } else if (result.cartItems.length === 0) {
+                return res.status(200).send({ message: 'Cart is already empty.' });
+            } else {
+                result.cartItems = [];
+                result.totalPrice = 0;
+                result.save()
+                    .then(updatedCart => res.status(200).send({ message: 'Successfully cleared all products from the cart.' }))
+                    .catch(error => res.status(500).send({ message: 'Failed to clear cart: ' + error }));
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+            return res.status(500).send({ message: 'Internal server error.' + error });
+        });
+};

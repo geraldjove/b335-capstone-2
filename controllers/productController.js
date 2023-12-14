@@ -61,7 +61,7 @@ module.exports.getAllActiveProducts = (req, res) =>{
 		console.error(error);
 		return res.status(500).send({ message: 'Internal server error.' });
 	  });
-}
+};
 
 module.exports.getProduct = (req, res) =>{
     return Product.findById(req.params.productId)
@@ -76,7 +76,7 @@ module.exports.getProduct = (req, res) =>{
 		console.error(error);
 		return res.status(404).send({ message: 'Product does not exist' });
 	  });
-}
+};
 
 module.exports.updateProductInfo = (req, res) => {
     return Product.findById(req.params.productId)
@@ -98,9 +98,9 @@ module.exports.updateProductInfo = (req, res) => {
                     return res.status(200).send({message: `Successfully updated product ${updatedProduct.id}`})
                 }
             })
-        }
-    })
-}
+        };
+    });
+};
 
 module.exports.archiveProduct = (req, res) => {
     return Product.findById(req.params.productId)
@@ -129,7 +129,7 @@ module.exports.archiveProduct = (req, res) => {
         console.error(error);
         return res.status(500).send({ message: 'Internal server error' });
       });
-}
+};
 
 module.exports.activateProduct = (req, res) => {
     return Product.findById(req.params.productId)
@@ -155,4 +155,34 @@ module.exports.activateProduct = (req, res) => {
         console.error(error);
         return res.status(500).send({ message: 'Internal server error' });
       });
-}
+};
+
+module.exports.searchProductByName = (req,res) => {
+    const productName = req.body.name;
+    Product.findOne({ name: { $regex: new RegExp(productName, 'i') } })
+    .then((result)=>{
+        if(!result){
+            return res.status(404).send({message: 'No product found'});
+        } else {
+            return res.status(200).send({product: result})
+        }
+    })
+};
+
+module.exports.searchProductByPriceRange = (req, res) => {
+    const minPrice = req.body.minPrice;
+    const maxPrice = req.body.maxPrice;
+
+    Product.find({ price: { $gte: minPrice, $lte: maxPrice } })
+        .then((results) => {
+            if (!results || results.length === 0) {
+                return res.status(404).send({ message: 'No products found in the specified price range' });
+            } else {
+                return res.status(200).send({ products: results });
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+            return res.status(500).send({ message: 'Internal server error.' + error });
+        });
+};
