@@ -3,38 +3,39 @@ const Product = require('../models/Product');
 
 module.exports.getUserCart = (req, res) => {
     Cart.findOne({ userId: req.user.id })
-        .then((result) => {
-            if (!result || result.cartItems.length === 0) {
+        .then((cart) => {
+            if (!cart || cart.cartItems.length === 0) {
                 res.status(404).send({ message: 'Empty Cart' });
             } else {
-                res.status(200).send({ message: result });
+                res.status(200).send({ message: cart });
             }
         })
-        .catch((error) => {
-            console.error(error);
-            return res.status(500).send({ message: 'Internal server error.' });
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).send({success: false, message: "Internal Server Error"});
         });
 };
 
 module.exports.addToCart = (req, res) => {
+    const { quantity, productId } = req.body;
     Cart.findOne({ userId: req.user.id })
         .then((cartResult) => {
             if (cartResult) {
-                const existingProduct = cartResult.cartItems.find(item => item.productId === req.body.productId);
+                const existingProduct = cartResult.cartItems.find(item => item.productId === productId);
 
                 if (existingProduct) {
                     return res.status(400).send({ message: 'Product is already in the cart. Please proceed to PATCH /carts/update-cart-quantity' });
                 } else {
-                    Product.findById(req.body.productId)
+                    Product.findById(productId)
                         .then((product) => {
                             if (!product) {
                                 return res.status(404).send({ message: 'Product does not exist.' });
                             }
 
                             cartResult.cartItems.push({
-                                productId: req.body.productId,
-                                quantity: req.body.quantity,
-                                subtotal: req.body.quantity * product.price,
+                                productId: productId,
+                                quantity: quantity,
+                                subtotal: quantity * product.price,
                                 price: product.price,
                             });
 
@@ -49,7 +50,7 @@ module.exports.addToCart = (req, res) => {
                         .catch(error => res.status(500).send({ message: 'Internal server error.' + error }));
                 }
             } else {
-                Product.findById(req.body.productId)
+                Product.findById(productId)
                     .then((product) => {
                         if (!product) {
                             return res.status(404).send({ message: 'Product does not exist.' });
@@ -59,13 +60,13 @@ module.exports.addToCart = (req, res) => {
                             userId: req.user.id,
                             cartItems: [
                                 {
-                                    productId: req.body.productId,
-                                    quantity: req.body.quantity,
-                                    subtotal: req.body.quantity * product.price,
+                                    productId: productId,
+                                    quantity: quantity,
+                                    subtotal: quantity * product.price,
                                     price: product.price,
                                 },
                             ],
-                            totalPrice: req.body.quantity * product.price,
+                            totalPrice: quantity * product.price,
                         });
 
                         newCart.save()
