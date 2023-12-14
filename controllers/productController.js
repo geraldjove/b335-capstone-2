@@ -48,6 +48,21 @@ module.exports.getAllProducts = (req, res) =>{
 	  });
 }
 
+module.exports.getAllActiveProducts = (req, res) =>{
+    return Product.find({isActive: true})
+    .then((result)=>{
+        if(!result){
+            return res.status(404).send({message: 'No products found'})
+        } else {
+            return res.status(200).send({products: result})
+        }
+    })
+    .catch((error) => {
+		console.error(error);
+		return res.status(500).send({ message: 'Internal server error.' });
+	  });
+}
+
 module.exports.getProduct = (req, res) =>{
     return Product.findById(req.params.productId)
     .then((result)=>{
@@ -63,13 +78,40 @@ module.exports.getProduct = (req, res) =>{
 	  });
 }
 
+module.exports.updateProductInfo = (req, res) => {
+    return Product.findById(req.params.productId)
+    .then((result)=>{
+        if(!result){
+            return res.status(400).send({message: 'No product found'})
+        } else {
+            return Product.findByIdAndUpdate(req.params.productId, {
+                name: req.body.name,
+                description: req.body.description,
+                price: req.body.price,
+                isActive: req.body.isActive,
+                new: true
+            })
+            .then((updatedProduct)=>{
+                if(!updatedProduct){
+                    return res.status(400).send({message: `Error updating product ${updatedProduct.id}`})
+                } else {
+                    return res.status(200).send({message: `Successfully updated product ${updatedProduct.id}`})
+                }
+            })
+        }
+    })
+}
+
 module.exports.archiveProduct = (req, res) => {
     return Product.findById(req.params.productId)
     .then((result)=>{
         if (result.isActive == false){
             res.status(403).send({message: 'Product is already archived'})
         } else {
-            return Product.findByIdAndUpdate(req.params.productId, {isActive: false, new: true})
+            return Product.findByIdAndUpdate(req.params.productId, {
+                isActive: false, 
+                new: true
+            })
             .then((archivedProduct)=>{
                 if(!archivedProduct){
                     return res.status(400).send({message: 'Error archiving product'})
