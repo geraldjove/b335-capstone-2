@@ -3,15 +3,16 @@ const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
 const cors = require("cors");
-const userRoutes = require('./routes/user')
-const productRoutes = require('./routes/productRoute');
+const userRoutes = require("./routes/user");
+const productRoutes = require("./routes/productRoute");
+const cartRoutes = require("./routes/cartRoute");
 
 const port = process.env.PORT || 4000;
 
 //----------------- MIDDLEWARES ------------------
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(cors())
+app.use(cors());
 
 //----------------- DATABASE ---------------------
 mongoose.connect(
@@ -34,3 +35,4 @@ app.listen(port, () => {
 // ---------------- ROUTES ----------------------
 app.use("/users", userRoutes);
 app.use("/products", productRoutes);
+app.use("/user", cartRoutes);
