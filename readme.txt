@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-`npm install` to install all package.json dependencies
-=======
 `npm install` to install all package.json dependencies
 
 ###############
@@ -18,4 +15,4 @@ Regular:
     "email": "jd@mail.com",
     "password": "12345678" //default password
 }
->>>>>>> 18f020b8398d3f2ae090597d56c3f83ee5994512
+
