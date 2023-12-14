@@ -7,6 +7,9 @@ const userRoutes = require('./routes/user')
 const productRoutes = require('./routes/productRoute');
 const cartRoutes = require('./routes/cartRoute');
 const orderRoutes = require('./routes/orderRoute');
+const passport = require("passport");
+const session = require('express-session');
+require("./passport");
 
 const port = process.env.PORT || 4000;
 
@@ -14,6 +17,16 @@ const port = process.env.PORT || 4000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors())
+
+app.use(session({
+	secret: process.env.clientSecret,
+	resave: false,
+	saveUninitialized: false
+}))
+
+app.use(passport.initialize());
+app.use(passport.session());
+
 
 //----------------- DATABASE ---------------------
 mongoose.connect(
