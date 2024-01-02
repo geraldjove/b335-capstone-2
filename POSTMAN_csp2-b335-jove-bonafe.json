@@ -1,10 +1,10 @@
 {
 	"info": {
-		"_postman_id": "efcb2a76-ff7a-4075-9467-8a7d478973c6",
+		"_postman_id": "1e03a80d-4c5b-4750-aab8-b8f5f33fe581",
 		"name": "Capstone 2",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "14755899",
-		"_collection_link": "https://gold-desert-353050.postman.co/workspace/b335-bonafe-jove-capstone-2~d696350a-69cb-4012-9bea-29340adfb854/collection/14755899-efcb2a76-ff7a-4075-9467-8a7d478973c6?action=share&source=collection_link&creator=14755899"
+		"_collection_link": "https://gold-desert-353050.postman.co/workspace/b335-bonafe-jove-capstone-2~d696350a-69cb-4012-9bea-29340adfb854/collection/14755899-1e03a80d-4c5b-4750-aab8-b8f5f33fe581?action=share&source=collection_link&creator=14755899"
 	},
 	"item": [
 		{
@@ -55,7 +55,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"email\":\"jw@mail.com\",\r\n    \"password\": \"123456789\" \r\n}",
+							"raw": "{\r\n    \"email\":\"jw@mail.com\",\r\n    \"password\": \"12345678\" \r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -164,7 +164,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1N2E1OTM2MzIwZGIyNzk0ZDE4ZjE0MiIsImVtYWlsIjoiandAbWFpbC5jb20iLCJpc0FkbWluIjp0cnVlLCJpYXQiOjE3MDI1MTc2Mzh9.W5EB43vNW69yr9fRvYmisEsp-zgPgUjwW8mv0heiOoE",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1OTM1NTU4M2VjZGVkMjc0NTUyOTdlOSIsImVtYWlsIjoiandAbWFpbC5jb20iLCJpc0FkbWluIjp0cnVlLCJpYXQiOjE3MDQxNjYzNTZ9.gNyL2zOc7mGOMlJQEp0VsjewvewSoRra3q6HBl05S1E",
 									"type": "string"
 								}
 							]
@@ -216,7 +216,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "// {\r\n//     \"name\": \"Quimbos\",\r\n//     \"description\": \"I don't know why anyone would want a Quimbos in their home.\",\r\n//     \"price\": 5500\r\n// },\r\n{\r\n    \"name\": \"Plumbus\",\r\n    \"description\": \"Everyone has one but nobody knows what to do with it!\",\r\n    \"price\": 2500\r\n}",
+							"raw": "// {\r\n//     \"name\": \"Quimbos\",\r\n//     \"description\": \"I don't know why anyone would want a Quimbos in their home.\",\r\n//     \"price\": 5500\r\n// }\r\n\r\n// {\r\n//     \"name\": \"Zuckmus\",\r\n//             \"description\": \"Great for zucking up faces.\",\r\n//             \"price\": 1000\r\n// }\r\n\r\n// {\r\n//     \"name\": \"Lumpus\",\r\n//             \"description\": \"There's a lump in my hump!\",\r\n//             \"price\": 550\r\n// }\r\n\r\n{\r\n    \"name\": \"Plumbus\",\r\n    \"description\": \"Everyone has one but nobody knows what to do with it!\",\r\n    \"price\": 2500\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -239,6 +239,16 @@
 				{
 					"name": "GET All Products",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1OTM1NTU4M2VjZGVkMjc0NTUyOTdlOSIsImVtYWlsIjoiandAbWFpbC5jb20iLCJpc0FkbWluIjp0cnVlLCJpYXQiOjE3MDQxNjYzNTZ9.gNyL2zOc7mGOMlJQEp0VsjewvewSoRra3q6HBl05S1E",
+									"type": "string"
+								}
+							]
+						},
 						"method": "GET",
 						"header": [],
 						"url": {
@@ -492,7 +502,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "// {\r\n//     \"productId\":\"657977c2a7f82b963feb389f\",\r\n//     \"quantity\": 2\r\n// }\r\n\r\n{\r\n    \"productId\":\"657977c2a7f82b963feb389f\",\r\n    \"quantity\": 2\r\n}",
+							"raw": "{\r\n    \"productId\":\"657977c2a7f82b963feb389f\",\r\n    \"quantity\": 2\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -672,7 +682,7 @@
 					"response": []
 				},
 				{
-					"name": "Get Users Order",
+					"name": "GET Users Order",
 					"request": {
 						"auth": {
 							"type": "bearer",
