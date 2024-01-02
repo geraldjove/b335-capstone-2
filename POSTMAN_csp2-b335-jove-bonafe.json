@@ -718,7 +718,7 @@
 							"bearer": [
 								{
 									"key": "token",
-									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1Nzk2MDkyYzFkOTBmNWEwNTFlYTNkOCIsImVtYWlsIjoiandAbWFpbC5jb20iLCJpc0FkbWluIjp0cnVlLCJpYXQiOjE3MDI0Njk4ODF9.d0jRNRbs98ZpkNL1YilBS6u4IkGWAF18SWTEmIi9neE",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY1OTM1NTU4M2VjZGVkMjc0NTUyOTdlOSIsImVtYWlsIjoiandAbWFpbC5jb20iLCJpc0FkbWluIjp0cnVlLCJpYXQiOjE3MDQxNjcwMTF9.woUZU3DIb6bdfY6Y2exkhlqG9vccL9l1lkNWJw5C8ns",
 									"type": "string"
 								}
 							]
@@ -726,14 +726,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:4000/orders/all",
+							"raw": "localhost:4000/orders/all-orders",
 							"host": [
 								"localhost"
 							],
 							"port": "4000",
 							"path": [
 								"orders",
-								"all"
+								"all-orders"
 							]
 						}
 					},
