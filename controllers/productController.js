@@ -157,19 +157,31 @@ module.exports.activateProduct = (req, res) => {
       });
 };
 
-module.exports.searchProductByName = (req,res) => {
+module.exports.searchProductByName = (req, res) => {
+    console.log('test');
     const productName = req.body.name;
+
+    if (!productName) {
+        return res.status(400).send({ message: 'Product name is required in the request body' });
+    }
+
     Product.findOne({ name: { $regex: new RegExp(productName, 'i') } })
-    .then((result)=>{
-        if(!result){
-            return res.status(404).send({message: 'No product found'});
-        } else {
-            return res.status(200).send({product: result})
-        }
-    })
+        .then((result) => {
+            if (!result) {
+                return res.status(404).send({ message: 'No product found' });
+            } else {
+                return res.status(200).send({ product: result });
+            }
+        })
+        .catch((error) => {
+            console.error(error);
+            return res.status(500).send({ message: 'Internal server error.' });
+        });
 };
 
+
 module.exports.searchProductByPriceRange = (req, res) => {
+    console.log('Test');
     const minPrice = req.body.minPrice;
     const maxPrice = req.body.maxPrice;
 
