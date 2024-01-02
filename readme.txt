@@ -15,3 +15,4 @@ Regular:
     "email": "jd@mail.com",
     "password": "12345678" //default password
 }
+

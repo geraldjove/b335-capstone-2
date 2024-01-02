@@ -94,7 +94,7 @@ module.exports.loginUser = (req, res) => {
   })
   .catch((message)=>{
     console.log(passwordAttempts[req.body.email])
-    return res.status(500).send({message})
+    return res.status(500).send({message: "error"})
   });
 };
 
