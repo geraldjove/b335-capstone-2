@@ -12,12 +12,16 @@ const session = require('express-session');
 require("./passport");
 
 
-const port = process.env.PORT || 4000;
+const port = process.env.PORT || 4004;
 
 //----------------- MIDDLEWARES ------------------
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors())
+
+app.get("/b4", (req, res) => {
+	res.send("Hello world")
+})
 
 app.use(session({
 	secret: process.env.clientSecret,
@@ -48,7 +52,7 @@ app.listen(port, () => {
 });
 
 // ---------------- ROUTES ----------------------
-app.use("/users", userRoutes);
-app.use("/products", productRoutes);
-app.use("/cart", cartRoutes);
-app.use("/orders", orderRoutes);
+app.use("/b4/users", userRoutes);
+app.use("/b4/products", productRoutes);
+app.use("/b4/cart", cartRoutes);
+app.use("/b4/orders", orderRoutes);
