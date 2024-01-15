@@ -106,6 +106,7 @@ module.exports.userDetails = (req, res) => {
     } else {
       return res.status(200).send({result: 
         {
+          id: req.user.id,
           firstName: result.firstName,
           lastName: result.lastName,
           email: result.email,
