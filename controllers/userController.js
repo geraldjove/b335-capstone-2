@@ -122,6 +122,20 @@ module.exports.userDetails = (req, res) => {
   });
 };
 
+module.exports.getAllUsers = (req, res) => {
+  return User.find({})
+  .then((result)=>{
+    if(!result){
+      return res.status(404).send({message: 'No users in the database', result});
+    } else {
+      return res.status(200).send({result: result})
+    }
+  })
+  .catch((err)=>{
+    return res.status(500).send({internal_error: err})
+  });
+}
+
 module.exports.updateAdmin = (req, res) => {
   User.findById(req.user.id)
   .then((result)=>{

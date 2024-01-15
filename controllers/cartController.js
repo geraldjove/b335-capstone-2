@@ -24,7 +24,7 @@ module.exports.addToCart = (req, res) => {
                 const existingProduct = cartResult.cartItems.find(item => item.productId === productId);
 
                 if (existingProduct) {
-                    return res.status(400).send({ message: 'Product is already in the cart. Please proceed to PATCH /carts/update-cart-quantity' });
+                    return res.status(400).send({ message: 'Product is already in the cart. Please proceed to PATCH /carts/update-cart-quantity', existingProduct });
                 } else {
                     Product.findById(productId)
                         .then((product) => {
@@ -55,12 +55,13 @@ module.exports.addToCart = (req, res) => {
                         if (!product) {
                             return res.status(404).send({ message: 'Product does not exist.' });
                         }
-
+                        const productName = product.name;
                         const newCart = new Cart({
                             userId: req.user.id,
                             cartItems: [
                                 {
                                     productId: productId,
+                                    name: productName,
                                     quantity: quantity,
                                     subtotal: quantity * product.price,
                                     price: product.price,
