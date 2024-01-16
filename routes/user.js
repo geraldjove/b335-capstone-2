@@ -8,6 +8,7 @@ const userController = require("../controllers/userController");
 
 router.post("/", userController.registerUser);
 router.post("/login", userController.loginUser);
+router.post("/logout", userController.logoutUser);
 router.get('/details', verify, userController.userDetails);
 router.get('/', verify, verifyAdmin, userController.getAllUsers);
 router.patch('/update-password', verify, userController.updatePassword)

@@ -98,6 +98,17 @@ module.exports.loginUser = (req, res) => {
   });
 };
 
+module.exports.logoutUser = (req, res) => {
+  try {
+    // Assuming you're using a session-based approach
+    req.session.destroy();
+    return res.status(200).send({ message: 'User logged out successfully' });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({ message: 'Internal server error during logout' });
+  }
+};
+
 module.exports.userDetails = (req, res) => {
   return User.findById(req.user.id)
   .then((result) => {
