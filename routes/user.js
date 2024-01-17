@@ -10,7 +10,7 @@ router.post("/", userController.registerUser);
 router.post("/login", userController.loginUser);
 router.delete("/logout", userController.logoutUser);
 router.get('/details', verify, userController.userDetails);
-router.get('/', verify, verifyAdmin, userController.getAllUsers);
+router.get('/all', verify, verifyAdmin, userController.getAllUsers);
 router.patch('/update-password', verify, userController.updatePassword)
 router.patch('/:userId/set-as-admin', verify, verifyAdmin, userController. updateAdmin)
 
