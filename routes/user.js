@@ -52,7 +52,7 @@ router.get("/logout", (req, res) => {
 		}else{
 			req.logout(()=>{
 				console.log('You are logged out');
-				res.redirect('/products');
+				res.redirect('/b4/products');
 			})
 		}
 	})
