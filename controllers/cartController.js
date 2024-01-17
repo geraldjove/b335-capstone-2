@@ -24,7 +24,7 @@ module.exports.addToCart = (req, res) => {
                 const existingProduct = cartResult.cartItems.find(item => item.productId === productId);
 
                 if (existingProduct) {
-                    return res.status(400).send({ message: 'Product is already in the cart. Please proceed to PATCH /carts/update-cart-quantity', existingProduct });
+                    return res.status(400).send({existingProduct});
                 } else {
                     Product.findById(productId)
                         .then((product) => {
